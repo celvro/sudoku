@@ -2,9 +2,6 @@
 http://freepythontips.wordpress.com/2013/09/01/sudoku-solver-in-python/
 """
 
-class MyException(Exception):
-    pass
-
 import sys
 
 def same_row(i,j): return (i/9 == j/9)
@@ -12,10 +9,11 @@ def same_col(i,j): return (i-j) % 9 == 0
 def same_block(i,j): return (i/27 == j/27 and i%9/3 == j%9/3)
 
 def r(a):
-  i = a.find('0')
+  i = a.find('x')
   if i == -1:
     #sys.exit(a)
-    raise MyException(a)
+    display(a)
+    return
 
   excluded_numbers = set()
   for j in range(81):
@@ -28,19 +26,14 @@ def r(a):
 
 
 def display(res):
-    rowcount = 1
-    colcount = 1
-
-    for n in res:
-        print n,
-        if colcount % 3 == 0:
-            print "|",
-        if colcount % 9 == 0:
-            print ""
-            if rowcount % 3 == 0:
-                print "-----------------------"
-            rowcount += 1
-        colcount += 1
+    s = list(' '.join(res))
+    s.append('\n')
+    
+    for i in range(17,len(s),18):
+        s[i] = '\n'
+        
+    print ''.join(s)
+    
 
 
 
@@ -48,20 +41,15 @@ if __name__ == '__main__':
   if len(sys.argv) == 2: # and len(sys.argv[1]) == 81:
     filename = sys.argv[1]
     f = open(filename)
-    sudoku = "".join([line.strip("\n").strip() for line in f.readlines()])
+    sudoku = ''
+    for line in f.readlines():
+        sudoku += line
+        if len(sudoku) >= 162:
+            sudoku = ''.join(sudoku.replace('\n','').replace(' ',''))
+            r(sudoku)
+            sudoku = ''
     f.close()
 
-    if len(sudoku) != 81:
-        sys.exit("file incorrectly formatted - must contain 81 digits")
-
-    #print "Input\n"
-    #display(sudoku)
-    #print "\n"
-    try:
-        r(sudoku)
-    except MyException as e:
-        print "Answer\n"
-        display(str(e))
   else:
     print 'Usage: python sudoku.py puzzle'
     print 'where puzzle is an 81 char string representing the puzzle read left-to-right, top-to-bottom, and 0 is a blank'
